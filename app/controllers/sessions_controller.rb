@@ -5,21 +5,22 @@ class SessionsController < ApplicationController
   def create
     user = User.find_by(email: params[:session][:email].downcase)
     if user &. authenticate(params[:session][:password])
-   #=if user && user.authenticate
-   #「&&」の場合、userがいて初めて右に進めるので、NoMethodErrorになることはない
-   #「&.」の場合、nil or trueになる
+
       log_in user #session[:user_id]=user.id
+      params[:session][:remember_me] == '1' ? remember(user) : forget(user)
       redirect_to user #users/:id=>"users#show"
     else
-      flash.now[:danger] = 'Invalid email/password combination' # 本当は正しくない
+      flash.now[:danger] = 'Invalid email/password combination'
       render 'new'
     end
   end
   
   def destroy
-    log_out
+    log_out if logged_in?
     redirect_to root_url
   end
+  
+
   
   
 end
